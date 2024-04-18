@@ -8,23 +8,16 @@
 
 
 gameScene::gameScene() {
-    setUpBackground();
-    //
-    // easyButton = new QPushButton("Easy");
-    // mediumButton = new QPushButton("Medium");
-    // hardButton = new QPushButton("Hard");
-
-    // QObject::connect(easyButton, &QPushButton::clicked, this, &gameScene::setDifficultyEasy);
-    // QObject::connect(mediumButton, &QPushButton::clicked, this, &gameScene::setDifficultyMedium);
-    // QObject::connect(hardButton, &QPushButton::clicked, this, &gameScene::setDifficultyHard);
-
-    // this->addWidget(easyButton);
-    // this->addWidget(easyButton);
-    // this->addWidget(easyButton);
-
-
-
-    //
+    setDifficulty();
+    collectSound = new QSoundEffect();
+    collectSound->setSource(QUrl::fromLocalFile("://water-droplet-1.wav"));
+    collectSound->setLoopCount(1);
+    collectSound->setVolume(100);
+    collectSound->setMuted(false);
+    missSound = new QSoundEffect();
+    missSound->setSource(QUrl::fromLocalFile("://fail-trombone-01.wav"));
+    missSound->setLoopCount(1);
+    missSound->setVolume(100);
     setUpBucket();
     loadClouds();
     //load timer for drops
@@ -35,6 +28,39 @@ gameScene::gameScene() {
 
     setupScoreDisplay();
 
+}
+
+void gameScene::setDifficulty(){
+    QDialog *difficultyDialog = new QDialog();
+    // Create a grid layout to hold the buttons
+    QGridLayout *gridLayout = new QGridLayout(difficultyDialog);
+    // Add buttons for easy, medium, and hard difficulty to the grid layout
+    QPushButton *easyButton = new QPushButton("Easy");
+    QPushButton *mediumButton = new QPushButton("Medium");
+    QPushButton *hardButton = new QPushButton("Hard");
+    QPushButton *startButton = new QPushButton("Start");
+
+    hardButton->setCheckable(true);
+    hardButton->setStyleSheet(QString("QPushButton {background-color: red;}"));
+    mediumButton->setCheckable(true);
+    mediumButton->setStyleSheet(QString("QPushButton {background-color: blue;}"));
+    easyButton->setCheckable(true);
+    easyButton->setStyleSheet(QString("QPushButton {background-color: green;}"));
+    gridLayout->addWidget(easyButton, 0, 0);
+    gridLayout->addWidget(mediumButton, 0, 1);
+    gridLayout->addWidget(hardButton, 0, 2);
+    gridLayout->addWidget(startButton, 1, 0, 1, 3);
+
+    connect(easyButton, &QPushButton::clicked, this, &gameScene::setDifficultyEasy);
+    connect(mediumButton, &QPushButton::clicked, this, &gameScene::setDifficultyMedium);
+    connect(hardButton, &QPushButton::clicked, this, &gameScene::setDifficultyHard);
+    connect(startButton, &QPushButton::clicked, difficultyDialog, &QDialog::accept);
+
+    while(!difficultyDialog->exec() == QDialog::Accepted){
+
+    }
+
+    setUpBackground();
 }
 
 void gameScene::setUpBackground(){
@@ -105,17 +131,15 @@ void gameScene::updateScore() {
     scoreText->setPlainText("Score: " + QString::number(score));
 
     collectedDrops->setPlainText("Drops: " + QString::number(collectedDroplets));
-    // adjustDropletSpeed();
 
-    // collectSound->play();
+    collectSound->play();
 }
 
 void gameScene::gameOver() {
 
     missedDroplets++;
 
-    // missedText->setPlainText("Missed: " + QString::number(missedDroplets));
-    // missSound->play();
+    missSound->play();
 
     if (missedDroplets > 5 || score >= 150) {
         showGameOverScreen();
@@ -149,9 +173,6 @@ void gameScene::showGameOverScreen() {
     retryButton = new QPushButton("Retry");
     retryButton->setGeometry(sceneWidth / 2 - 25, sceneHeight / 2 + 20, 50, 25);
     connect(retryButton, &QPushButton::clicked, this, &gameScene::retryGame,Qt::QueuedConnection);
-    // QObject::connect(retryButton, SIGNAL(&QPushButton::clicked), this, SLOT(&gameScene::retryGame()), Qt::QueuedConnection);
-
-
     addWidget(retryButton);
 }
 

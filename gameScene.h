@@ -10,6 +10,9 @@
 #include <QApplication>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QUrl>
+#include <QSoundEffect>
+#include <QDialog>
 
 class gameScene : public QGraphicsScene
 {
@@ -25,16 +28,12 @@ public:
     int missedDroplets = 0;
     int dropletSpeedLevel = 1;
     int mode = 1;
-    QMediaPlayer *collectSound;
-    QMediaPlayer *missSound;
+    QSoundEffect *collectSound;
+    QSoundEffect *missSound;
     QGraphicsTextItem *scoreText;
     QGraphicsTextItem *collectedDrops;
     QGraphicsTextItem *levelText;
     QPushButton *retryButton;
-    QPushButton *easyButton;
-    QPushButton *mediumButton;
-    QPushButton *hardButton;
-    QVBoxLayout *buttonLayout;
     gameScene();
     void checkCollisions();
     void setupScoreDisplay();
@@ -44,6 +43,7 @@ public:
     void setUpBucket();
     void setUpBackground();
     void loadClouds();
+    void setDifficulty();
 private slots:
     void spawnWaterDrop();
     void updateScore();

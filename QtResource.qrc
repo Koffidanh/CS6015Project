@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>water-droplet-1.wav</file>
+        <file>fail-trombone-01.wav</file>
+        <file>images/background.jpg</file>
+        <file>images/water.gif</file>
+        <file>images/cloud.png</file>
+        <file>images/bucket.png</file>
+        <file>users.txt</file>
+        <file>images/megaman.jpg</file>
+        <file>scores.txt</file>
+    </qresource>
+</RCC>

@@ -46,12 +46,14 @@ void GameForm::addUserInfo(MainWindow::User *userData){
     ui->SuccessPage->setText(createString);
     //check to make sure image was uploaded.
     if(!userData->profileImage.isEmpty()){
-    QString getStartPath = "://images/";
-    QPixmap *getImage = new QPixmap(getStartPath + userData->profileImage);
+    // QString getStartPath = "://images/";
+    QPixmap *getImage = new QPixmap(QCoreApplication::applicationDirPath() + "/" + userData->profileImage);
     QSize imageSize = ui->profilePic->size();
 
     QPixmap scaledImage = getImage->scaled(imageSize, Qt::KeepAspectRatio);
     ui->profilePic->setPixmap(scaledImage);
+
+
     }
 }
 

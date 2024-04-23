@@ -16,7 +16,11 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    readExistingUsers();
+     existingUsers = readExistingUsers();
+
+    // Create an instance of SignUpForm and pass the existingUserNames set
+    SignUpForm *signupForm = new SignUpForm(existingUserNames);
+
 }
 
 MainWindow::~MainWindow()
@@ -69,7 +73,7 @@ bool MainWindow::isUser(const QString& user, const QString& password){
 /**
  * @brief Read existing users from file to check login credentials
  */
-void MainWindow::readExistingUsers()
+QSet<MainWindow::User *> MainWindow::readExistingUsers()
 
 {
      QString filePath = QCoreApplication::applicationDirPath() + "/users.txt";
@@ -138,7 +142,7 @@ void MainWindow::readExistingUsers()
         }
         file.close();
     }
-
+    return existingUsers;
 }
 
 /**

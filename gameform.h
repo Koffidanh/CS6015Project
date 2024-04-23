@@ -7,6 +7,9 @@
 #include <QGraphicsView>
 #include <QPixMap>
 #include "scoredb.h"
+#include <QCoreApplication>
+#include <QFile>
+#include <QDebug>
 namespace Ui {
 class GameForm;
 }

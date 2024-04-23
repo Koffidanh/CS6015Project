@@ -28,12 +28,13 @@ public:
         QString profileImage;
 
     };
+     QSet<User*> readExistingUsers();
 
 private slots:
     void on_pushButton_2_clicked();
 
     void on_LoginBtn_clicked();
-    void readExistingUsers();
+
     bool isUser(const QString& user, const QString& password);
 
     void on_pushButton_clicked();

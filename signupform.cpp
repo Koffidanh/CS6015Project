@@ -9,19 +9,23 @@
 #include <QFileDialog>
 #include <QTextStream>
 
-SignUpForm::SignUpForm(QWidget *parent)
+SignUpForm::SignUpForm( const QSet<QString>& existingUsernamesList, QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::SignUpForm)
-    , existingUsernames()
+    , existingUsernames(existingUsernamesList)
+
+
 {
     ui->setupUi(this);
     // Connect the submit button click signal to the slot
-    connect(ui->signUp_Submit, &QPushButton::clicked, this, &SignUpForm::on_pushButton_4_clicked);
+    connect(ui->signUp_Submit, &QPushButton::clicked, this, &SignUpForm::on_signUp_Submit_clicked);
     // Connect the upload picture button click signal to a slot
     connect(ui->signUp_UploadPicture, &QPushButton::clicked, this, &SignUpForm::onUploadPictureButtonClicked);
 
-    // Read existing usernames from the file when the form is constructed
-    readExistingUsernames();
+    // Call the function to read existing usernames
+    readExistingUsernames(existingUsernames);
+
+
 
 }
 
@@ -33,18 +37,19 @@ SignUpForm::~SignUpForm()
 /**Method to handle validating, and pushing sign up data to database textfile.
  * @brief SignUpForm::on_pushButton_4_clicked
  */
-void SignUpForm::on_pushButton_4_clicked()
+void SignUpForm::on_signUp_Submit_clicked()
 
 {
     QString filePath = QCoreApplication::applicationDirPath() + "/users.txt";
     // Get the username entered by the user
     QString username = ui->signUp_UserName->text().trimmed();
 
+    // Check if the username is empty
     if (username.isEmpty()) {
         ui->testresult->setText("Error: Please enter a username!");
         return;
     }
-
+    // Check if the username is unique
     if (isUnique(username)) {
 
         //Take the user input from the form and add it to a struct to push to the database file.
@@ -95,6 +100,13 @@ void SignUpForm::on_pushButton_4_clicked()
             while(!confirmation->exec()==QDialog::Accepted){
 
             }
+            // Check if a picture was uploaded
+            if (!pictureName.isEmpty()) {
+                QPixmap profileImage(pictureName);
+                saveImage(imageObject, pictureName);
+                qDebug() << "Picture added to resource successfully.";
+            }
+
             MainWindow *newView = new MainWindow();
             newView->show();
             this->close();
@@ -120,6 +132,7 @@ void SignUpForm::onUploadPictureButtonClicked()
         // Extract the file name from the full path
         QFileInfo fileInfo(pictureFileName);
         pictureName = fileInfo.fileName();
+        imageObject = QImage(pictureFileName);
     }
 }
 
@@ -130,6 +143,7 @@ void SignUpForm::onUploadPictureButtonClicked()
  */
 bool SignUpForm::isUnique(const QString& username)
 {
+
     return !existingUsernames.contains(username);
 }
 
@@ -137,25 +151,23 @@ bool SignUpForm::isUnique(const QString& username)
  * @brief SignUpForm::readExistingUsernames
  */
 
-void SignUpForm::readExistingUsernames()
-
-{
+void SignUpForm::readExistingUsernames(QSet<QString>& existingUsernames) {
     QString filePath = QCoreApplication::applicationDirPath() + "/users.txt";
     QFile file(filePath);
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QTextStream in(&file);
-        //read file until we hit the end.
         while (!in.atEnd()) {
             QString line = in.readLine();
-            //pull out username
             if (line.startsWith("Username:")) {
-                QString username = line.mid(10).trimmed(); // Extract the username
+                QString username = line.mid(10).trimmed();
                 existingUsernames.insert(username);
             }
         }
         file.close();
     }
 }
+
+
 
 /**Method to check if password meets the expected criteria.
  *
@@ -175,12 +187,22 @@ bool SignUpForm::isStrongPassword(const QString& password) {
  * @param image to save
  * @param filePath to save image to
  */
-void SignUpForm::saveImage(QPixmap &image, QString &filePath) {
+void SignUpForm::saveImage(QImage &image, const QString &filePath) {
+
     QFile file(filePath);
     if (file.open(QIODevice::WriteOnly)) {
-        image.save(&file, "PNG");
+        if (image.isNull()) {
+            qDebug() << "Error: QPixmap is null. Image not saved.";
+            file.close();
+            return;
+        }
+        image.save(&file, "PNG"); // Save the image to the file in PNG format
         file.close();
+        qDebug() << "Image saved successfully to" << filePath;
     } else {
-        qDebug() << "Failed to save image to" << filePath;
+        qDebug() << "Failed to save image to" << filePath << ". Error:" << file.errorString();
     }
 }
+
+
+

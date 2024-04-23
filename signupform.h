@@ -2,12 +2,13 @@
 #define SIGNUPFORM_H
 
 #include <QWidget>
-#include <QSet> // Include the header for QSet
+#include <QSet>
 #include <QRegularExpression>
-#include <Qdialog>
+#include <QDialog>
 #include <QGridLayout>
 #include <QTextEdit>
 #include "mainWindow.h"
+
 namespace Ui {
 class SignUpForm;
 }
@@ -24,23 +25,29 @@ public:
         QString userName;
         QString password;
         QString profileImage;
-
     };
-    explicit SignUpForm(QWidget *parent = nullptr);
+
+    explicit SignUpForm(const QSet<QString>& existingUsernames = {}, QWidget *parent = nullptr);
     ~SignUpForm();
+
     bool isStrongPassword(const QString& password);
-    void saveImage(QPixmap &image, QString &filePath);
+    void saveImage(QImage &image, const QString &filePath);
 
 private slots:
-    void on_pushButton_4_clicked();
+    void on_signUp_Submit_clicked();
     void onUploadPictureButtonClicked();
     bool isUnique(const QString& username);
-    void readExistingUsernames();
+    void readExistingUsernames(QSet<QString>& existingUsernames);
+
+
+
 
 private:
     Ui::SignUpForm *ui;
     QSet<QString> existingUsernames;
     QString pictureName;
+    QSet<MainWindow::User *> existingUsers;
+    QImage imageObject;
 };
 
 #endif // SIGNUPFORM_H
